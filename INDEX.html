@@ -1,0 +1,867 @@
+<!doctype html>
+<!--
+  Miftahu An-Najah — Final Ultimate Legendary Single File (Linked Assets)
+  - Finalized: soft cinematic animated gradient background + soft gold-blue palette
+  - Dual language (English + Arabic), content preserved exactly
+  - Linked assets: videos & images load from Cloudinary (no inlining)
+  - Theme toggle (dark <-> bright), bright mode = soft-gold + blue
+  - Accessible skip link, captions, modal registration, gallery lightbox
+  - Easter-egg console message with build.unlock()
+  - Save as miftahu_legendary_final_cinematic.html
+-->
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>MADRASATU MIFTĀHU AN-NAJAH — Legendary Profile</title>
+  <meta name="description" content="Miftahu An-Najah — Qur'an memorisation, tajwīd, Arabic studies, scholarships & community outreach. Sponsor a learner or register today." />
+  <meta name="theme-color" content="#041423" />
+  <link rel="canonical" href="https://example.org/madrasatu-miftahu-annaijah" />
+  <meta property="og:title" content="Miftahu An-Najah — Tahfīdh School" />
+  <meta property="og:description" content="Qur'an memorisation, tajwīd and Arabic studies in Lagos. Sponsor a learner — change a life." />
+  <meta property="og:image" content="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1200,f_auto,q_auto/v1760857600/principal_poster.jpg" />
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /*
+      Design tokens and theme variables
+      - dark cinematic core (default)
+      - bright soft-gold + blue activated when body.has .bright-mode
+    */
+    :root{
+      --radius:16px;
+      --maxw:1100px;
+      --ease:cubic-bezier(.19,1,.22,1);
+      --font-sans: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+      --font-ar: 'Tajawal', system-ui, -apple-system, 'Noto Naskh Arabic', 'Segoe UI';
+
+      /* Default Dark Cinematic */
+      --bg-color: #041423;
+      --panel: rgba(255,255,255,0.03);
+      --panel-strong: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.05);
+      --text: #eaf6fb;
+      --muted: #9fb3bf;
+      --accent: #0bb3a8;
+      --accent-2: #0b88b3;
+      --gold: #d4af37;
+      --card-bg: rgba(255,255,255,0.02);
+      --video-overlay: rgba(0,0,0,0.10);
+      --shadow-color: rgba(0,0,0,0.5);
+      --focus: 3px solid rgba(11,179,168,0.22);
+    }
+
+    /* Bright mode: soft gold + subtle blue */
+    .bright-mode{
+      --bg-color: linear-gradient(180deg,#f8fbff,#eef7fb);
+      --panel: rgba(255,255,255,0.98);
+      --panel-strong: rgba(240,245,248,0.98);
+      --glass-border: rgba(11,88,120,0.06);
+      --text: #062635;
+      --muted: #456b78;
+      --accent: #0b88b3;
+      --accent-2: #0b6f9a;
+      --gold: #e6c96d;
+      --card-bg: rgba(255,255,255,0.96);
+      --video-overlay: rgba(255,255,255,0.08);
+      --shadow-color: rgba(2,8,23,0.06);
+      --focus: 3px solid rgba(11,88,120,0.12);
+    }
+
+    /* Animated soft cinematic background (subtle, non-distracting) */
+    body{
+      margin:0; font-family:var(--font-sans); -webkit-font-smoothing:antialiased;
+      background: var(--bg-color);
+      color: var(--text);
+      transition: background .6s var(--ease), color .6s var(--ease);
+      min-height:100vh;
+    }
+
+    /* Background animation canvas uses pseudo-element on body */
+    body::before{
+      content:"";
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:
+        radial-gradient(800px 400px at 20% 10%, rgba(210,170,80,0.06), rgba(11,88,120,0.02) 30%, transparent 60%),
+        radial-gradient(600px 300px at 85% 85%, rgba(14,174,239,0.04), rgba(212,175,55,0.02) 40%, transparent 70%);
+      mix-blend-mode: screen;
+      opacity:1;
+      transition: opacity .6s ease;
+      transform: translateZ(0);
+      animation: slowDrift 18s linear infinite;
+      filter: blur(18px) saturate(120%);
+    }
+    @keyframes slowDrift{
+      0%{ transform: translateY(0) scale(1) rotate(0deg); opacity:1;}
+      50%{ transform: translateY(-8px) scale(1.02) rotate(0.2deg); opacity:0.96;}
+      100%{ transform: translateY(0) scale(1) rotate(0deg); opacity:1;}
+    }
+
+    /* Container */
+    .container{
+      max-width:var(--maxw);
+      margin:22px auto;
+      padding:20px;
+      border-radius:20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 28px 80px var(--shadow-color);
+      position:relative;
+      overflow:visible;
+      z-index:2; /* above background */
+      transition: background .45s var(--ease), box-shadow .45s var(--ease);
+    }
+
+    /* Skip link */
+    .skip-link{position:absolute;left:-999px;top:auto}
+    .skip-link:focus{left:16px;top:12px;z-index:9999;padding:8px 12px;background:#fff;color:var(--accent);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+
+    /* Header / brand */
+    .header{display:flex;gap:14px;align-items:center;position:relative;z-index:3;flex-wrap:wrap}
+    .logo{width:84px;height:84px;border-radius:14px;background:linear-gradient(180deg,#08323f,#0b6580);padding:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.35)}
+    .logo img{width:100%;height:100%;object-fit:contain;border-radius:10px}
+    .brand h1{margin:0;font-family:var(--font-sans);font-size:18px;letter-spacing:0.6px;color:var(--text)}
+    .brand .sub{color:var(--muted);font-size:13px;margin-top:6px}
+
+    .nav{margin-left:auto;display:flex;gap:10px;align-items:center}
+    .nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:13px;padding:8px 12px;border-radius:10px;transition:all .18s}
+    .nav a:hover{color:var(--accent);transform:translateY(-2px)}
+    .btn-donate{background:linear-gradient(90deg,var(--gold),#f3da78);padding:10px 14px;border-radius:999px;font-weight:800;color:#041423;text-decoration:none;box-shadow:0 10px 28px rgba(212,175,55,0.12)}
+
+    /* Theme toggle fixed control */
+    .theme-toggle {
+      position: fixed;
+      right: 14px;
+      top: 14px;
+      z-index: 99999;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border-radius: 999px;
+      padding: 6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.36);
+      transition: background .3s var(--ease), transform .18s;
+      backdrop-filter: blur(6px);
+    }
+    .theme-toggle button{
+      background: transparent; border: 0; color: var(--text); cursor: pointer; padding:8px; border-radius:8px; font-size:14px;
+    }
+    .theme-toggle button:focus{ outline: var(--focus); }
+
+    /* Hero grid */
+    .hero{display:grid;grid-template-columns:1fr 480px;gap:22px;align-items:start;position:relative;margin-top:14px}
+    .headline{font-family:var(--font-sans);font-weight:700;font-size:clamp(20px,3.6vw,34px);margin:4px 0;line-height:1.02;color:var(--text)}
+    .lead{color:var(--muted);margin-top:10px;line-height:1.6}
+    .glass-badge{display:inline-block;padding:8px 14px;border-radius:999px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);font-weight:800;color:var(--accent);}
+
+    .actions{margin-top:14px;display:flex;gap:12px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;font-weight:800;border:0;cursor:pointer}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 10px 30px rgba(11,88,96,0.18)}
+    .btn-outline{border:2px solid rgba(11,88,96,0.06);background:transparent;color:var(--accent)}
+
+    .statbar{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+    .stat{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;min-width:120px;text-align:center;box-shadow:0 10px 24px var(--shadow-color)}
+    .stat strong{display:block;font-size:20px;color:var(--text)}
+
+    /* Cinematic visual */
+    .cinematic{border-radius:14px;overflow:hidden;border:1px solid var(--panel-strong);position:relative;background:#000;box-shadow:0 28px 80px var(--shadow-color);min-height:220px}
+    .cinematic video{width:100%;height:100%;object-fit:cover;display:block}
+    .cinematic .video-overlay{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;background:var(--video-overlay)}
+    .cinematic.playing .video-overlay{opacity:0.08}
+
+    /* Panels/cards */
+    .glass{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); backdrop-filter: blur(8px) saturate(120%); border: 1px solid var(--glass-border); border-radius:12px; padding:12px; box-shadow: 0 8px 30px var(--shadow-color); }
+    .card{background:var(--card-bg);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px var(--shadow-color)}
+    .muted{color:var(--muted);font-size:14px}
+
+    /* Sections */
+    .section{margin-top:26px}
+    .section h2{color:var(--accent);font-size:18px;margin:0 0 10px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
+    .gallery figure{position:relative;height:180px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#071a25,#071a25);display:flex;align-items:flex-end;cursor:zoom-in}
+    .gallery img{width:100%;height:100%;object-fit:cover;transition:transform .38s var(--ease)}
+    .gallery figure:hover img{transform:scale(1.06)}
+    .gallery figcaption{position:absolute;left:12px;bottom:12px;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.18));padding:8px 10px;border-radius:8px;font-weight:700;font-size:13px}
+
+    .patrons{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .patron{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));box-shadow:0 8px 24px var(--shadow-color)}
+    .patron img{width:108px;height:108px;object-fit:cover;border-radius:10px}
+
+    /* Modal & lightbox */
+    .modal-overlay{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:20000;padding:20px}
+    .modal-overlay[aria-hidden="false"]{display:flex}
+    .modal-box{width:min(980px,96vw);max-height:90vh;background:linear-gradient(180deg,#00131a,#03161d);border-radius:12px;overflow:auto;padding:0;box-shadow:0 30px 80px rgba(0,0,0,0.7)}
+    #lightbox{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);z-index:20000;padding:20px}
+    #lightbox[aria-hidden="false"]{display:flex}
+
+    /* Language containers */
+    .lang{display:none}
+    .lang.active{display:block}
+    .arabic{font-family:var(--font-ar);direction:rtl;text-align:right}
+
+    /* Focus and accessibility */
+    :focus{outline:var(--focus);outline-offset:2px}
+    @media (prefers-reduced-motion:reduce){ *[data-animated]{animation:none!important;transition:none!important} }
+
+    /* Responsive */
+    @media (max-width:980px){ .hero{grid-template-columns:1fr} .cinematic{min-height:220px} .gallery figure{height:160px} .patron img{width:84px;height:84px} }
+    @media (max-width:620px){
+      .container{margin:10px;padding:12px;border-radius:14px}
+      .logo{width:64px;height:64px}
+      .headline{font-size:18px}
+      .hero{gap:14px}
+      .gallery figure{height:140px}
+      .nav{display:none}
+      .theme-toggle{right:10px;top:10px}
+    }
+
+    /* Utilities */
+    .muted-small{font-size:13px;color:var(--muted)}
+    .sr-only{position:absolute;left:-9999px;top:auto}
+  </style>
+</head>
+
+<body>
+  <!-- Theme toggle -->
+  <div class="theme-toggle" role="toolbar" aria-label="Theme toggle">
+    <button id="themeToggleBtn" aria-pressed="false" aria-label="Toggle theme (dark / bright)">
+      <span id="themeIcon" aria-hidden="true">🌙</span>
+    </button>
+  </div>
+
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <main id="mainContent" class="container" role="main" aria-labelledby="siteTitle" data-animated="true">
+    <!-- HEADER -->
+    <header class="header" role="banner">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="logo" aria-hidden="true">
+          <img alt="Miftahu logo" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_600,f_auto,q_auto/v1760860207/Screenshot_2025-06-26_232633_aya0p2.png">
+        </div>
+        <div class="brand">
+          <h1 id="siteTitle">MADRASATU MIFTĀHU AN-NAJAH</h1>
+          <div class="sub muted-small">Tahfeez School — Qur'an • Tajwīd • Arabic • Character</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#about-en">About</a>
+        <a href="#programs-en">Programs</a>
+        <a href="#impact-en">Impact</a>
+        <a href="#highlights-en">Gallery</a>
+        <a href="#patrons-en">Patrons</a>
+        <a href="#registration-en">Register</a>
+        <a class="btn-donate" href="https://flutterwave.com/donate/90ynmhuxb2im" target="_blank" rel="noopener noreferrer">💝 Donate</a>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-left:8px">
+          <label for="langToggle" class="sr-only">Language</label>
+          <select id="langToggle" aria-label="Choose language">
+            <option value="en" selected>English</option>
+            <option value="ar">العربية</option>
+          </select>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ENGLISH container -->
+    <div id="lang-en" class="lang active" lang="en" dir="ltr">
+      <!-- HERO -->
+      <section class="hero" id="home-en" aria-labelledby="heroHeading-en">
+        <div>
+          <div class="glass-badge" aria-hidden="true">Established 2024 • RC 7711247</div>
+          <h2 id="heroHeading-en" class="headline" style="margin-top:12px">
+            MADRASATU MIFTĀHU AN-NAJAH — <span style="color:var(--gold)">Where Hearts Memorize & Minds Shine</span>
+          </h2>
+          <p class="lead">We nurture confident, God-conscious learners through structured Tahfīdh cycles, tajwīd excellence, and character formation — producing trained Huffādh and community leaders rooted in Qur'anic practice.</p>
+
+          <div class="actions" role="group" aria-label="Primary actions">
+            <a class="btn btn-primary" href="#programs-en">📚 Our Programs</a>
+            <a class="btn btn-outline" href="https://flutterwave.com/donate/90ynmhuxb2im" target="_blank" rel="noopener noreferrer">💝 Sponsor a Learner</a>
+            <button id="openRegBtn-en" class="btn btn-outline" aria-haspopup="dialog" aria-controls="regModal-en">📝 Register Now</button>
+          </div>
+
+          <div class="statbar" aria-hidden="true">
+            <div class="stat"><strong>50+</strong><div class="muted">Students</div></div>
+            <div class="stat"><strong>10</strong><div class="muted">Huffādh</div></div>
+            <div class="stat"><strong>10+</strong><div class="muted">Teachers & Staff</div></div>
+          </div>
+
+          <p class="muted" style="margin-top:12px">Address: 1B Ayo-Adekoya Close, Shangisha, Lagos • Phone: <a href="tel:+2349126612666">+234 912 661 2666</a> • Email: <a href="mailto:miftaahuannajah@gmail.com">miftaahuannajah@gmail.com</a></p>
+        </div>
+
+        <aside aria-label="Principal speech" style="width:100%;max-width:480px">
+          <div class="cinematic hero-tilt" id="heroCinematic-en" aria-live="polite">
+            <video id="principalVideo-en" controls playsinline preload="metadata" poster="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1200,f_auto,q_auto/v1760857600/principal_poster.jpg" crossorigin="anonymous" aria-describedby="prDesc-en">
+              <source src="https://res.cloudinary.com/dn1o4jatg/video/upload/q_auto,w_1080,vc_h264/v1760857596/principals_speech_bs0hgh.mp4" type="video/mp4">
+              <track kind="captions" srclang="en" label="English captions" default src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:05.000%0APrincipal%20message%20welcome%20(English%20caption).%0A">
+              <track kind="captions" srclang="ar" label="Arabic captions" src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:05.000%0Aرسالة%20المدير%20(الترجمة).%0A">
+              Your browser does not support HTML5 video.
+            </video>
+            <div class="video-overlay" aria-hidden="true"></div>
+          </div>
+          <div style="padding:12px">
+            <h3 id="principalName-en">Principal — Sheikh Sulaimon</h3>
+            <div id="prDesc-en" class="muted">An invitation to knowledge and sincerity — watch the Principal's message about our mission, the love of the Qur'an, and the responsibility of nurturing youth.</div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- AFFAIRS -->
+      <section id="affairs-en" class="section" aria-labelledby="affairsHeading-en">
+        <h2 id="affairsHeading-en">Our Affairs — Workshop & Outreach</h2>
+        <p class="muted">A cinematic overview of our holiday workshop, intensive memorisation classes, and community outreach initiatives.</p>
+
+        <div class="cinematic" style="margin-top:12px;min-height:220px">
+          <video id="affairsVideo-en" controls playsinline preload="metadata" poster="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1200,f_auto,q_auto/v1760857600/principal_poster.jpg" crossorigin="anonymous" aria-describedby="affDesc-en">
+            <source src="https://res.cloudinary.com/dn1o4jatg/video/upload/v1761471105/Join_Our_Qur_%C4%81n_Holiday_Workshop_Intensive_Memorization_Classes_Daily_after_Solatul_Sub_kln3ed.mp4" type="video/mp4">
+            <track kind="captions" srclang="en" label="English captions" default src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:04.000%0AJoin%20our%20holiday%20workshop%20(English%20caption).%0A">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+        <p id="affDesc-en" class="muted" style="margin-top:10px">This is the official workshop & outreach film — ready for stakeholders and sponsors.</p>
+      </section>
+
+      <!-- RECITATION -->
+      <section id="recitation-en" class="section" aria-labelledby="reciteHeading-en">
+        <h2 id="reciteHeading-en">Student Recitation — Journey of a Young Hafiz</h2>
+        <div class="cinematic" style="margin-top:12px;min-height:200px">
+          <video id="reciteVideo-en" controls playsinline preload="metadata" poster="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759845530/recite_poster.jpg" crossorigin="anonymous" aria-describedby="recDesc-en">
+            <source src="https://res.cloudinary.com/dn1o4jatg/video/upload/q_auto,w_1080,vc_h264/v1759857531/intro_jslkjk.mp4" type="video/mp4">
+            <track kind="captions" srclang="en" label="English captions" default src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:06.000%0AStudent%20recitation%20(English%20caption).%0A">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+        <p id="recDesc-en" class="muted" style="margin-top:10px">A glimpse into the heart of our Tahfīdh programme — reverent recitation reflecting discipline and love for the Qur'an.</p>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about-en" class="section">
+        <h2>About Us</h2>
+        <p class="muted">Miftahu An-Najah Qur’an Memorisation and Arabic Studies Ltd is an Islamic educational institution dedicated to Qur’an memorisation (Tahfīdh), Arabic studies, and moral formation. Incorporated under the Companies and Allied Matters Act 2020 (RC 7711247), we are committed to accessible, high-quality Islamic education for children and adults.</p>
+
+        <div class="grid" style="margin-top:12px">
+          <div class="card"><strong>Mission</strong><p class="muted">To nurture young minds through Qur’an memorisation and the teaching of core Islamic morals — shaping disciplined, God-conscious individuals who will become positive contributors to the Ummah and society at large.</p></div>
+          <div class="card"><strong>Vision</strong><p class="muted">To raise communities of upright Muslims who live by the Qur’an and Sunnah, and embody sincerity, humility, and service.</p></div>
+          <div class="card"><strong>Core Values</strong><p class="muted">Faith (Īmān) • Knowledge (‘Ilm) • Discipline • Integrity • Service to Humanity</p></div>
+        </div>
+      </section>
+
+      <!-- PROGRAMS -->
+      <section id="programs-en" class="section">
+        <h2>Programs & Curriculum</h2>
+        <div class="grid">
+          <div class="card"><strong>Tahfīdh (Qur'an Memorisation)</strong><p class="muted">Structured memorisation with daily revision cycles, tajwīd coaching, teacher-led checks, and regular assessments to ensure permanent retention and beautiful recitation.</p></div>
+          <div class="card"><strong>Weekend Classes</strong><p class="muted">Weekend programmes for school-age children to strengthen recitation, Arabic basics, and Islamic studies alongside formal schooling.</p></div>
+          <div class="card"><strong>Adult Learning</strong><p class="muted">Accessible classes for adults seeking Qur’anic reading, memorisation, or Arabic literacy.</p></div>
+        </div>
+      </section>
+
+      <!-- IMPACT -->
+      <section id="impact-en" class="section">
+        <h2>Achievements & Impact</h2>
+        <div class="grid">
+          <div class="card"><strong>Huffādh Trained</strong><p class="muted">10 dedicated memorizers trained, who have perfected their qirā’ah through the madrasah's rigorous curriculum.</p></div>
+          <div class="card"><strong>Ramadan Feeding Project</strong><p class="muted">Annual feeding outreach serving vulnerable neighbours, combining sustenance with community education and dignity.</p></div>
+          <div class="card"><strong>Scholarship & Welfare</strong><p class="muted">Most students study under full or partial scholarships — our sponsorship programme keeps doors open for needy families.</p></div>
+        </div>
+      </section>
+
+      <!-- HIGHLIGHTS / GALLERY -->
+      <section id="highlights-en" class="section">
+        <h2>The Virtue of Fun in Learning</h2>
+        <p class="muted">At Miftahu An-Najah, we believe joy is a bridge to knowledge. Fun-filled learning experiences help our students connect with the Qur’an and Arabic in ways that nurture their hearts and sharpen their minds.</p>
+
+        <div class="gallery" aria-label="Highlights gallery">
+          <figure>
+            <img loading="lazy" alt="Students at the park — joy and learning."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759858648/at_the_park2_ce8ygi.jpg"
+                 srcset="
+                   https://res.cloudinary.com/dn1o4jatg/image/upload/w_1920,f_auto,q_auto/v1759858648/at_the_park2_ce8ygi.jpg 1920w,
+                   https://res.cloudinary.com/dn1o4jatg/image/upload/w_1280,f_auto,q_auto/v1759858648/at_the_park2_ce8ygi.jpg 1280w,
+                   https://res.cloudinary.com/dn1o4jatg/image/upload/w_720,f_auto,q_auto/v1759858648/at_the_park2_ce8ygi.jpg 720w"
+                 sizes="(max-width:600px) 92vw, (max-width:1200px) 48vw, 400px">
+            <figcaption>“Joy opens the heart to knowledge.”</figcaption>
+          </figure>
+
+          <figure>
+            <img loading="lazy" alt="Students outdoor activity."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759858668/at_the_park1_wavbuk.jpg">
+            <figcaption>“Fresh air, focused hearts.”</figcaption>
+          </figure>
+
+          <figure>
+            <img loading="lazy" alt="Classroom session."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759858759/at_the_class1_auka9b.jpg">
+            <figcaption>“One-on-one guidance shapes destiny.”</figcaption>
+          </figure>
+
+          <figure>
+            <img loading="lazy" alt="One-on-one teaching with Ustadh."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808833/IMG-20251018-WA0043_b8zwyt.jpg">
+            <figcaption>“Knowledge flows through sincerity, not just words.”</figcaption>
+          </figure>
+
+          <figure>
+            <img loading="lazy" alt="Future leaders."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808834/IMG-20251018-WA0061_pvja9m.jpg">
+            <figcaption>“Tomorrow's leaders are trained with patience today.”</figcaption>
+          </figure>
+
+          <figure>
+            <img loading="lazy" alt="Modest female students on the journey."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808838/IMG-20251018-WA0059_dwbli5.jpg">
+            <figcaption>“Modesty is beauty; knowledge is light.”</figcaption>
+          </figure>
+
+          <figure>
+            <img loading="lazy" alt="Parents support and board."
+                 src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808833/IMG-20251018-WA0066_mimyak.jpg">
+            <figcaption>“The hands that raise students are blessed beyond measure.”</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- PATRONS -->
+      <section id="patrons-en" class="section">
+        <h2>Patrons</h2>
+        <p class="muted">We are grateful to our patrons for their leadership and steadfast support.</p>
+        <div class="patrons" style="margin-top:12px">
+          <div class="patron">
+            <img loading="lazy" alt="Alhaji Najeem Olanrewaju" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_480,f_auto,q_auto/v1760633427/najeem_oopb6f.jpg">
+            <div><h3>Alhaji Najeem Olanrewaju <small class="muted">Surul-Islam</small></h3><p class="muted">CEO Najali Petroleum & Natural Gas Ltd — a tireless supporter of Qur'anic education and community welfare.</p></div>
+          </div>
+
+          <div class="patron">
+            <img loading="lazy" alt="Alhaji Shekoni" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_480,f_auto,q_auto/v1760633470/shekoni_pszh9h.jpg">
+            <div><h3>Alhaji Muhammed Olatunde Shekoni <small class="muted">Fakhrul-Islam</small></h3><p class="muted">Retired US Navy veteran & entrepreneur — mentor and supporter of Islamic education.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOUNDER / MUDEER -->
+      <section id="mudeer-en" class="section">
+        <h2>From Our Founder — Sheikh Toyeeb Adekoya (Mudeer)</h2>
+        <div class="card">
+          <p class="muted"><strong>Sheikh Toyeeb Adekoya</strong> — a visionary leader reshaping Islamic education and calling the community to invest in Sadaqah Jāriyah through student sponsorship and teacher welfare.</p>
+          <p class="muted"><em>“Support knowledge and you plant a seed that blossoms across generations. Your investment here is an investment for the akhira.”</em></p>
+        </div>
+      </section>
+
+      <!-- REGISTRATION -->
+      <section id="registration-en" class="section">
+        <h2>📖 Registration — Embark on Your Qur'anic Journey</h2>
+        <div class="card" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+          <div style="flex:1;min-width:220px"><p class="muted">Begin a sacred journey. Scholarships available. Click register to complete the application form — or open the form in a new tab if your browser blocks embeds.</p></div>
+          <div><button id="openReg-en" class="btn-primary">📝 Begin Registration</button></div>
+        </div>
+        <p class="muted" style="margin-top:8px">(Direct form: <a href="https://form.jotform.com/252945964778075" target="_blank" rel="noopener noreferrer">JotForm Registration</a>.)</p>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact-en" class="section">
+        <h2>Contact</h2>
+        <div class="grid">
+          <div class="card"><strong>Address</strong><p class="muted">1B Ayo-Adekoya Close, Shangisha, Lagos State, Nigeria</p></div>
+          <div class="card"><strong>Phone / WhatsApp</strong><p class="muted"><a href="tel:+2349126612666">+234 912 661 2666</a> — <a href="https://wa.me/2349126612666?text=As-Salaamu%20'%20Alaykum%2C%20I%20would%20like%20to%20enquire%20about%20registration%20and%20sponsorship." target="_blank" rel="noopener noreferrer">Open WhatsApp</a></p></div>
+          <div class="card"><strong>Email</strong><p class="muted"><a href="mailto:miftaahuannajah@gmail.com">miftaahuannajah@gmail.com</a></p></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <a class="btn-outline" href="mailto:miftaahuannajah@gmail.com?subject=Miftahu%20An-Najah%20Enquiry">📧 Email</a>
+          <a class="btn-outline" href="https://www.instagram.com/miftahu_najah.tahfeezschool?igsh=MThyOG5zbGM2MmtyMA==" target="_blank" rel="noopener noreferrer">📸 Instagram</a>
+          <a class="btn-outline" id="waBtn-en" href="https://wa.me/2349126612666?text=As-Salaamu%20'%20Alaykum%2C%20I%20would%20like%20to%20enquire%20about%20registration%20and%20sponsorship." target="_blank">💬 WhatsApp</a>
+        </div>
+      </section>
+
+      <footer style="margin-top:28px">
+        <div style="font-weight:800;color:var(--gold)">Investing in Islamic education is Sadaqah Jāriyah</div>
+        <div class="muted" style="margin-top:6px">Miftahu An-Najah Qur'an Memorisation & Arabic Studies Ltd • RC 7711247 • <a href="mailto:miftaahuannajah@gmail.com">miftaahuannajah@gmail.com</a></div>
+      </footer>
+    </div>
+
+    <!-- ARABIC container -->
+    <div id="lang-ar" class="lang" lang="ar" dir="rtl">
+      <!-- HERO AR -->
+      <section class="hero arabic" id="home-ar" aria-labelledby="heroHeading-ar">
+        <div>
+          <div class="glass-badge" style="font-family:var(--font-ar)">تأسست ٢٠٢٤ • RC 7711247</div>
+          <h2 id="heroHeading-ar" class="headline" style="margin-top:12px;font-family:var(--font-ar)"><span style="color:var(--gold)">مدرسة مِفتَاحُ النَّجَاح</span> — حيث تحفظ القلوب وتضيء العقول</h2>
+          <p class="lead" style="font-family:var(--font-ar)">نُرَبِّي طُلابًا واثقين وذاكِرين لله من خلال دورات تحفيظ منظَّمة، تَجويد متميز، وتكوين أخلاقي — نخرّج حفاظًا وقادةً مجتمعيين متجذرين في الممارسة القرآنية.</p>
+
+          <div class="actions" role="group" aria-label="الإجراءات الرئيسية">
+            <a class="btn btn-primary" href="#programs-ar">📚 برامجنا</a>
+            <a class="btn btn-outline" href="https://flutterwave.com/donate/90ynmhuxb2im" target="_blank" rel="noopener noreferrer">💝 كفالة طالب</a>
+            <button id="openReg-ar" class="btn btn-outline" aria-haspopup="dialog" aria-controls="regModal-ar">📝 سجّل الآن</button>
+          </div>
+
+          <div class="statbar" aria-hidden="true">
+            <div class="stat"><strong>٥٠+</strong><div class="muted">طلاب</div></div>
+            <div class="stat"><strong>١٠</strong><div class="muted">حِفّاظ</div></div>
+            <div class="stat"><strong>١٠+</strong><div class="muted">معلمون وموظفون</div></div>
+          </div>
+
+          <p class="muted" style="margin-top:12px;font-family:var(--font-ar)">العنوان: 1B Ayo-Adekoya Close, Shangisha, Lagos • الهاتف: <a href="tel:+2349126612666">+234 912 661 2666</a> • البريد: <a href="mailto:miftaahuannajah@gmail.com">miftaahuannajah@gmail.com</a></p>
+        </div>
+
+        <aside aria-label="كلمة المدير" style="width:100%;max-width:480px">
+          <div class="cinematic hero-tilt" id="heroCinematic-ar" aria-live="polite">
+            <video id="principalVideo-ar" controls playsinline preload="metadata" poster="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1200,f_auto,q_auto/v1760857600/principal_poster.jpg" crossorigin="anonymous" aria-describedby="prDesc-ar">
+              <source src="https://res.cloudinary.com/dn1o4jatg/video/upload/q_auto,w_1080,vc_h264/v1760857596/principals_speech_bs0hgh.mp4" type="video/mp4">
+              <track kind="captions" srclang="ar" label="الترجمة العربية" default src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:05.000%0Aرسالة%20المدير%20(الترجمة).%0A">
+              Your browser does not support HTML5 video.
+            </video>
+            <div class="video-overlay" aria-hidden="true"></div>
+          </div>
+          <div style="padding:12px"><h3 style="font-family:var(--font-ar)" id="principalName-ar">المدير — الشيخ سليمان</h3><div id="prDesc-ar" class="muted" style="font-family:var(--font-ar)">دعوة إلى المعرفة والإخلاص — شاهد رسالة المدير حول مهمتنا وحب القرآن ومسؤولية رعاية الناشئة.</div></div>
+        </aside>
+      </section>
+
+      <!-- AFFAIRS AR -->
+      <section id="affairs-ar" class="section arabic" aria-labelledby="affairsHeading-ar">
+        <h2 id="affairsHeading-ar" style="font-family:var(--font-ar)">شؤوننا — ورشة العمل والمشاريع</h2>
+        <p class="muted" style="font-family:var(--font-ar)">نظرة سينمائية على ورشة العطلة، دروس الحفظ المركزة، ومبادرات الوصول المجتمعي.</p>
+
+        <div class="cinematic" style="margin-top:12px;min-height:220px">
+          <video id="affairsVideo-ar" controls playsinline preload="metadata" poster="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1200,f_auto,q_auto/v1760857600/principal_poster.jpg" crossorigin="anonymous" aria-describedby="affDesc-ar">
+            <source src="https://res.cloudinary.com/dn1o4jatg/video/upload/v1761471105/Join_Our_Qur_%C4%81n_Holiday_Workshop_Intensive_Memorization_Classes_Daily_after_Solatul_Sub_kln3ed.mp4" type="video/mp4">
+            <track kind="captions" srclang="ar" label="الترجمة العربية" default src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:04.000%0Aانضم%20إلى%20ورشة%20العطلة%20(الترجمة).%0A">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+        <p id="affDesc-ar" class="muted" style="margin-top:10px;font-family:var(--font-ar)">هذا هو الفيلم الرسمي للورشة — جاهز للجهات الراعية والداعمين.</p>
+      </section>
+
+      <!-- RECITATION AR -->
+      <section id="recitation-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">تلاوة الطالب — رحلة حافظ صغير</h2>
+        <div class="cinematic" style="margin-top:12px;min-height:200px">
+          <video id="reciteVideo-ar" controls playsinline preload="metadata" poster="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759845530/recite_poster.jpg" crossorigin="anonymous" aria-describedby="recDesc-ar">
+            <source src="https://res.cloudinary.com/dn1o4jatg/video/upload/q_auto,w_1080,vc_h264/v1759857531/intro_jslkjk.mp4" type="video/mp4">
+            <track kind="captions" srclang="ar" label="الترجمة العربية" default src="data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000 --> 00:00:06.000%0Aتلاوة%20الطالب%20(الترجمة).%0A">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+        <p id="recDesc-ar" class="muted" style="margin-top:10px;font-family:var(--font-ar)">لمحة عن قلب برنامج التحفيظ — تلاوة باحترام وانضباط ومحبة للقرآن.</p>
+      </section>
+
+      <!-- ABOUT AR -->
+      <section id="about-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">من نحن</h2>
+        <p class="muted" style="font-family:var(--font-ar)">مِفتَاحُ النَّجَاح لتحفيظ القرآن ودراسات العربية مؤسسة تعليمية إسلامية مكرّسة لتحفيظ القرآن (حفظ)، ودراسات اللغة العربية، والتكوين الأخلاقي. مسجلة وفق قانون الشركات وشؤون الأعمال 2020 (RC 7711247)، ونلتزم بتقديم تعليم إسلامي عالي الجودة وميسور للأطفال والبالغين.</p>
+
+        <div class="grid" style="margin-top:12px">
+          <div class="card"><strong style="font-family:var(--font-ar)">الرسالة</strong><p class="muted" style="font-family:var(--font-ar)">نهدف إلى رعاية العقول الشابة من خلال حفظ القرآن وتعليم الأخلاق الإسلامية الأساسية — تشكيل أفراد منضبطين وذاكرين لله يساهمون إيجابياً في الأمة والمجتمع.</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">الرؤية</strong><p class="muted" style="font-family:var(--font-ar)">نهدف إلى أن نربي مجتمعات من المسلمين الصالحين الذين يعيشون بالقرآن والسنة، ويتجسدون بالإخلاص والتواضع والخدمة.</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">القيم الأساسية</strong><p class="muted" style="font-family:var(--font-ar)">الإيمان • العلم • الانضباط • الأمانة • خدمة الإنسانية</p></div>
+        </div>
+      </section>
+
+      <!-- PROGRAMS AR -->
+      <section id="programs-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">البرامج والمناهج</h2>
+        <div class="grid">
+          <div class="card"><strong style="font-family:var(--font-ar)">تحفيظ (حفظ القرآن)</strong><p class="muted" style="font-family:var(--font-ar)">منهج حفظ منظم مع دورات مراجعة يومية، تدريب على التجويد، فحوصات قيادية من المعلمين، وتقييمات دورية لضمان الحفظ الدائم والتلاوة الحسنة.</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">دروس نهاية الأسبوع</strong><p class="muted" style="font-family:var(--font-ar)">برامج نهاية الأسبوع للأطفال لتعزيز التلاوة وأساسيات العربية والدراسات الإسلامية إلى جانب التعليم النظامي.</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">تعليم الكبار</strong><p class="muted" style="font-family:var(--font-ar)">دروس متاحة للبالغين الذين يسعون لتعلم قراءة القرآن، الحفظ، أو القراءة بالعربية.</p></div>
+        </div>
+      </section>
+
+      <!-- IMPACT AR -->
+      <section id="impact-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">الإنجازات والأثر</h2>
+        <div class="grid">
+          <div class="card"><strong style="font-family:var(--font-ar)">الحفاظ المتخرجون</strong><p class="muted" style="font-family:var(--font-ar)">١٠ حفاظ مدرّبون بإتقان القراءات من خلال منهج المدرسة الصارم.</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">مشروع إفطار رمضان</strong><p class="muted" style="font-family:var(--font-ar)">حملة إفطار سنوية تخدم الجيران المحتاجين، تجمع بين الإعاشة والتعليم المجتمعي والكرامة.</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">المنح والرعاية</strong><p class="muted" style="font-family:var(--font-ar)">معظم الطلاب يدرسون بمنح كاملة أو جزئية — برنامج الكفالة لدينا يحافظ على فتح الأبواب للعائلات المحتاجة.</p></div>
+        </div>
+      </section>
+
+      <!-- HIGHLIGHTS / GALLERY AR -->
+      <section id="highlights-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">ميزة المتعة في التعلم</h2>
+        <p class="muted" style="font-family:var(--font-ar)">في مِفتَاحُ النَّجَاح، نؤمن أن المتعة جسر إلى المعرفة. تجارب تعليمية مليئة بالبهجة تساعد طلابنا على التواصل مع القرآن والعربية بطرق تغذي قلوبهم وتزيد من قدراتهم.</p>
+
+        <div class="gallery" aria-label="معرض الصور">
+          <figure><img loading="lazy" alt="طلاب في الحديقة" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759858648/at_the_park2_ce8ygi.jpg"><figcaption style="font-family:var(--font-ar)">«الفرح يفتح القلب للمعرفة.»</figcaption></figure>
+          <figure><img loading="lazy" alt="نشاط خارجي للطلاب" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759858668/at_the_park1_wavbuk.jpg"><figcaption style="font-family:var(--font-ar)">«هواء نقي، قلوبٌ مركزة.»</figcaption></figure>
+          <figure><img loading="lazy" alt="جلسة صفية" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1759858759/at_the_class1_auka9b.jpg"><figcaption style="font-family:var(--font-ar)">«التوجيه الفردي يشكّل المصير.»</figcaption></figure>
+          <figure><img loading="lazy" alt="تعليم فردي مع الأستاذ" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808833/IMG-20251018-WA0043_b8zwyt.jpg"><figcaption style="font-family:var(--font-ar)">«المعرفة تتدفق بالإخلاص، لا بالكلام فقط.»</figcaption></figure>
+          <figure><img loading="lazy" alt="قادة المستقبل" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808834/IMG-20251018-WA0061_pvja9m.jpg"><figcaption style="font-family:var(--font-ar)">«قادة الغد يُدرَّبون بالصبر اليوم.»</figcaption></figure>
+          <figure><img loading="lazy" alt="طالبات محتشمات" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808838/IMG-20251018-WA0059_dwbli5.jpg"><figcaption style="font-family:var(--font-ar)">«الاحتشام جمال؛ والمعرفة نور.»</figcaption></figure>
+          <figure><img loading="lazy" alt="أولياء الأمور والمجلس" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_1000,f_auto,q_auto/v1760808833/IMG-20251018-WA0066_mimyak.jpg"><figcaption style="font-family:var(--font-ar)">«الأيادي التي تربي الطلاب مباركة بلا حدود.»</figcaption></figure>
+        </div>
+      </section>
+
+      <!-- PATRONS AR -->
+      <section id="patrons-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">الرعاة</h2>
+        <p class="muted" style="font-family:var(--font-ar)">نحمد الله على رعاتنا لقيادتهم ودعمهم الثابت.</p>
+        <div class="patrons" style="margin-top:12px">
+          <div class="patron"><img loading="lazy" alt="الحاج نجم" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_480,f_auto,q_auto/v1760633427/najeem_oopb6f.jpg"><div><h3 style="font-family:var(--font-ar)">الحاج نجم أولانريواجو <small class="muted">Surul-Islam</small></h3><p class="muted" style="font-family:var(--font-ar)">المدير التنفيذي Najali Petroleum & Natural Gas Ltd — داعم متواصل للتعليم القرآني وخدمة المجتمع.</p></div></div>
+
+          <div class="patron"><img loading="lazy" alt="الحاج شكّوني" src="https://res.cloudinary.com/dn1o4jatg/image/upload/w_480,f_auto,q_auto/v1760633470/shekoni_pszh9h.jpg"><div><h3 style="font-family:var(--font-ar)">الحاج محمد أولاتوندي شكّوني <small class="muted">Fakhrul-Islam</small></h3><p class="muted" style="font-family:var(--font-ar)">متقاعد من البحرية الأمريكية ورجل أعمال — مرشد وداعم للتعليم الإسلامي.</p></div></div>
+        </div>
+      </section>
+
+      <!-- REGISTRATION AR -->
+      <section id="registration-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">📖 التسجيل — ابدأ رحلتك القرآنية</h2>
+        <div class="card" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+          <div style="flex:1;min-width:220px"><p class="muted" style="font-family:var(--font-ar)">ابدأ رحلة مقدسة. تتوفر منح دراسية. اضغط للتسجيل لملء استمارة التقديم — أو افتح النموذج في نافذة جديدة إذا منعت المتصفحات الإدراج.</p></div>
+          <div><button id="openReg-ar" class="btn-primary">📝 بدء التسجيل</button></div>
+        </div>
+        <p class="muted" style="margin-top:8px;font-family:var(--font-ar)">(النموذج المباشر: <a href="https://form.jotform.com/252945964778075" target="_blank" rel="noopener noreferrer">نموذج التسجيل (JotForm)</a>.)</p>
+      </section>
+
+      <!-- CONTACT AR -->
+      <section id="contact-ar" class="section arabic">
+        <h2 style="font-family:var(--font-ar)">الاتصال</h2>
+        <div class="grid">
+          <div class="card"><strong style="font-family:var(--font-ar)">العنوان</strong><p class="muted" style="font-family:var(--font-ar)">1B Ayo-Adekoya Close, Shangisha, Lagos State, Nigeria</p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">الهاتف / واتساب</strong><p class="muted" style="font-family:var(--font-ar)"><a href="tel:+2349126612666">+234 912 661 2666</a> — <a href="https://wa.me/2349126612666?text=السلام%20عليكم%20،%20أريد%20الاستفسار%20حول%20التسجيل%20والكفالة." target="_blank" rel="noopener noreferrer">افتح واتساب</a></p></div>
+          <div class="card"><strong style="font-family:var(--font-ar)">البريد</strong><p class="muted" style="font-family:var(--font-ar)"><a href="mailto:miftaahuannajah@gmail.com">miftaahuannajah@gmail.com</a></p></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <a class="btn-outline" href="mailto:miftaahuannajah@gmail.com?subject=استفسار%20مفتاح%20النجاح">📧 البريد</a>
+          <a class="btn-outline" href="https://www.instagram.com/miftahu_najah.tahfeezschool?igsh=MThyOG5zbGM2MmtyMA==" target="_blank" rel="noopener noreferrer">📸 إنستغرام</a>
+          <a class="btn-outline" id="waBtn-ar" href="https://wa.me/2349126612666?text=السلام%20عليكم%20،%20أريد%20الاستفسار%20حول%20التسجيل%20والكفالة." target="_blank">💬 واتساب</a>
+        </div>
+      </section>
+
+      <footer style="margin-top:28px" class="arabic">
+        <div style="font-weight:800;color:var(--gold);font-family:var(--font-ar)">الاستثمار في التعليم الإسلامي صدقة جارية</div>
+        <div class="muted" style="margin-top:6px;font-family:var(--font-ar)">مِفتَاحُ النَّجَاح لتحفيظ القرآن ودراسات العربية • RC 7711247 • <a href="mailto:miftaahuannajah@gmail.com">miftaahuannajah@gmail.com</a></div>
+      </footer>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" aria-hidden="true" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);z-index:20000;padding:20px">
+      <button id="lbClose" aria-label="Close" style="position:absolute;top:16px;right:16px;background:transparent;border:0;color:#fff;font-size:28px;cursor:pointer">✕</button>
+      <img id="lbImg" alt="gallery preview" style="max-width:92%;max-height:88%;border-radius:12px">
+    </div>
+
+    <!-- Registration modals -->
+    <div id="regModal-en" class="modal-overlay" role="dialog" aria-hidden="true" aria-labelledby="registration-en">
+      <div class="modal-box" role="document" aria-modal="true">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <strong id="registration-en">Registration — Miftahu An-Najah</strong>
+          <button class="closeReg" data-lang="en" aria-label="Close registration" style="border:0;background:transparent;color:var(--text);font-size:20px;cursor:pointer">✕</button>
+        </div>
+        <div id="modalBody-en" style="height:720px"></div>
+      </div>
+    </div>
+
+    <div id="regModal-ar" class="modal-overlay" role="dialog" aria-hidden="true" aria-labelledby="registration-ar">
+      <div class="modal-box" role="document" aria-modal="true">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <strong id="registration-ar">التسجيل — مِفتَاحُ النَّجَاح</strong>
+          <button class="closeReg" data-lang="ar" aria-label="إغلاق التسجيل" style="border:0;background:transparent;color:var(--text);font-size:20px;cursor:pointer">✕</button>
+        </div>
+        <div id="modalBody-ar" style="height:720px"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+  (function(){
+    'use strict';
+
+    /* ELEMENTS */
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+    const langToggle = document.getElementById('langToggle');
+    const enContainer = document.getElementById('lang-en');
+    const arContainer = document.getElementById('lang-ar');
+
+    /* THEME PREFERENCE (stored) */
+    const THEME_KEY = 'miftahu_theme_mode'; // 'dark' or 'bright'
+
+    function applyTheme(theme){
+      if(theme === 'bright'){
+        body.classList.add('bright-mode');
+        themeToggleBtn.setAttribute('aria-pressed','true');
+        themeIcon.textContent = '☀️';
+      } else {
+        body.classList.remove('bright-mode');
+        themeToggleBtn.setAttribute('aria-pressed','false');
+        themeIcon.textContent = '🌙';
+      }
+    }
+
+    // load preference (default dark)
+    let savedTheme = null;
+    try{ savedTheme = localStorage.getItem(THEME_KEY); }catch(e){}
+    applyTheme(savedTheme === 'bright' ? 'bright' : 'dark');
+
+    // toggle
+    themeToggleBtn.addEventListener('click', function(){
+      const isBright = body.classList.contains('bright-mode');
+      const newTheme = isBright ? 'dark' : 'bright';
+      applyTheme(newTheme);
+      try{ localStorage.setItem(THEME_KEY, newTheme); }catch(e){}
+      themeToggleBtn.animate([{transform:'scale(0.96)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:280,easing:'ease-out'});
+    });
+
+    /* LANGUAGE SWITCH */
+    function showLang(lang){
+      if(lang==='ar'){
+        enContainer.classList.remove('active');
+        arContainer.classList.add('active');
+        document.documentElement.lang = 'ar';
+        document.documentElement.dir = 'rtl';
+        arContainer.scrollIntoView({behavior:'smooth', block:'start'});
+      } else {
+        arContainer.classList.remove('active');
+        enContainer.classList.add('active');
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+        enContainer.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    }
+    langToggle.addEventListener('change', function(e){ showLang(e.target.value); });
+    showLang(langToggle.value || 'en');
+
+    /* MODALS & LIGHTBOX HELPERS */
+    function trapFocus(container){
+      const selector = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+      const nodes = Array.from(container.querySelectorAll(selector)).filter(n => n.offsetParent !== null);
+      if(!nodes.length) return ()=>{};
+      const first = nodes[0], last = nodes[nodes.length -1];
+      function keyHandler(e){
+        if(e.key !== 'Tab') return;
+        if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+      }
+      container.addEventListener('keydown', keyHandler);
+      return ()=>container.removeEventListener('keydown', keyHandler);
+    }
+
+    // registration EN
+    const openRegEn = document.getElementById('openReg-en');
+    const regModalEn = document.getElementById('regModal-en');
+    const modalBodyEn = document.getElementById('modalBody-en');
+    let cleanupEn;
+    if(openRegEn){
+      openRegEn.addEventListener('click', ()=>{
+        if(modalBodyEn && !modalBodyEn.querySelector('iframe')){
+          const ifr = document.createElement('iframe');
+          ifr.src = 'https://form.jotform.com/252945964778075';
+          ifr.loading = 'lazy';
+          ifr.style.width='100%'; ifr.style.height='100%';
+          modalBodyEn.appendChild(ifr);
+        }
+        regModalEn.style.display='flex'; regModalEn.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+        cleanupEn = trapFocus(regModalEn);
+        regModalEn.querySelector('button, a, input, textarea')?.focus();
+      });
+    }
+
+    // registration AR
+    const openRegAr = document.getElementById('openReg-ar');
+    const regModalAr = document.getElementById('regModal-ar');
+    const modalBodyAr = document.getElementById('modalBody-ar');
+    let cleanupAr;
+    if(openRegAr){
+      openRegAr.addEventListener('click', ()=>{
+        if(modalBodyAr && !modalBodyAr.querySelector('iframe')){
+          const ifr = document.createElement('iframe');
+          ifr.src = 'https://form.jotform.com/252945964778075';
+          ifr.loading = 'lazy';
+          ifr.style.width='100%'; ifr.style.height='100%';
+          modalBodyAr.appendChild(ifr);
+        }
+        regModalAr.style.display='flex'; regModalAr.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+        cleanupAr = trapFocus(regModalAr);
+        regModalAr.querySelector('button, a, input, textarea')?.focus();
+      });
+    }
+
+    // close modal
+    document.querySelectorAll('.closeReg').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        const lang = btn.getAttribute('data-lang');
+        if(lang==='en'){ regModalEn.style.display='none'; regModalEn.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if(typeof cleanupEn==='function') cleanupEn(); }
+        else { regModalAr.style.display='none'; regModalAr.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if(typeof cleanupAr==='function') cleanupAr(); }
+      });
+    });
+
+    // gallery lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbClose = document.getElementById('lbClose');
+    document.querySelectorAll('.gallery img').forEach(img=>{
+      img.addEventListener('click', ()=>{
+        lbImg.src = img.currentSrc || img.src;
+        lightbox.style.display='flex'; lightbox.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+        lbClose.focus();
+      });
+    });
+    if(lbClose) lbClose.addEventListener('click', ()=>{ lightbox.style.display='none'; lightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; });
+
+    // ESC closes UI overlays
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        if(lightbox && lightbox.style.display === 'flex'){ lightbox.style.display = 'none'; lightbox.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+        if(regModalEn && regModalEn.style.display === 'flex'){ regModalEn.style.display='none'; regModalEn.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if(typeof cleanupEn==='function') cleanupEn(); }
+        if(regModalAr && regModalAr.style.display === 'flex'){ regModalAr.style.display='none'; regModalAr.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if(typeof cleanupAr==='function') cleanupAr(); }
+      }
+    });
+
+    // video hooks (visual playing class)
+    function hookVideo(id){ const v=document.getElementById(id); if(!v) return; v.addEventListener('play', ()=>{ const p=v.closest('.cinematic'); if(p) p.classList.add('playing'); }); v.addEventListener('pause', ()=>{ const p=v.closest('.cinematic'); if(p) p.classList.remove('playing'); }); v.addEventListener('ended', ()=>{ const p=v.closest('.cinematic'); if(p) p.classList.remove('playing'); }); }
+    ['principalVideo-en','principalVideo-ar','reciteVideo-en','reciteVideo-ar','affairsVideo-en','affairsVideo-ar'].forEach(hookVideo);
+
+    // ensure captions exist for accessibility
+    document.querySelectorAll('video').forEach((v)=>{
+      const hasCaptions = Array.from(v.querySelectorAll('track')).some(t=>t.kind==='captions');
+      if(!hasCaptions){
+        const t=document.createElement('track'); t.kind='captions'; t.srclang='en'; t.label='English captions'; t.src='data:text/vtt,WEBVTT%0A%0A00:00:00.000 --> 00:00:05.000%0ASample%20caption';
+        v.appendChild(t);
+      }
+    });
+
+    // reveal animation
+    const revealEls = document.querySelectorAll('.section, .hero, .patrons, .gallery');
+    function reveal(){ for(const el of revealEls){ const r = el.getBoundingClientRect(); if(r.top < window.innerHeight - 80){ el.style.transition = 'opacity .8s ease, transform .8s ease'; el.style.opacity = 1; el.style.transform = 'none'; } } }
+    window.addEventListener('scroll', reveal, {passive:true}); window.addEventListener('load', ()=>{ reveal(); setTimeout(reveal,600); });
+    for(const el of revealEls){ el.style.opacity = 0; el.style.transform = 'translateY(10px)'; }
+
+    // soft decorative glow element (non-invasive)
+    (function decorate(){
+      const container = document.querySelector('.container');
+      if(!container) return;
+      const el = document.createElement('div');
+      el.setAttribute('aria-hidden','true');
+      el.style.position='absolute'; el.style.right='-6%'; el.style.top='-14%'; el.style.width='760px'; el.style.height='480px';
+      el.style.pointerEvents='none';
+      el.style.background='radial-gradient(circle at 22% 18%, rgba(214,175,55,0.12), rgba(11,88,160,0.04) 40%, rgba(255,255,255,0) 80%)';
+      el.style.filter='blur(24px)'; el.style.transform='rotate(-8deg)'; el.style.zIndex='0';
+      container.appendChild(el);
+    })();
+
+    // Easter egg console + build.unlock()
+    (function easterEgg(){
+      const s1='color:#ffd36b;font-size:16px;font-weight:800';
+      const s2='color:#9fdfe0;font-size:13px';
+      console.log('%c🔥 Miftahu Legendary Build — Console Entrance 🔥', s1);
+      console.log('%cWelcome, steward. Type %cbuild.unlock()%c to trigger a small celebratory flash.', s2,'color:#ffd36b;font-weight:700',s2);
+      window.build = window.build || {};
+      window.build.unlock = function(){ try{ const flash=document.createElement('div'); flash.style.position='fixed'; flash.style.left=0; flash.style.right=0; flash.style.top=0; flash.style.height='6px'; flash.style.background='linear-gradient(90deg,#ffd36b,#d4af37)'; flash.style.zIndex=99999; flash.style.opacity=0; document.body.appendChild(flash); flash.animate([{opacity:0},{opacity:1},{opacity:0}],{duration:1200}); setTimeout(()=>flash.remove(),1400); console.log('%c✨ build.unlock() activated ✨','color:#7bffcf'); }catch(e){console.log('unlock failed',e);} };
+    })();
+
+    // initial focus
+    document.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('langToggle')?.focus(); });
+  })();
+  </script>
+</body>
+</html>
